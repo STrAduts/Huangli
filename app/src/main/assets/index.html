@@ -13,6 +13,9 @@
     <template id="onboarding-template">
       <section class="screen onboarding-screen">
         <header class="onboarding-header">
+          <div class="hero-art-wrap">
+            <img class="hero-art" src="./images/huangli-hero.png" alt="">
+          </div>
           <p class="eyebrow">Modern Huangli</p>
           <h1>现代生活指南</h1>
           <p>请完善你的个人信息，为你生成专属每日建议。</p>
@@ -83,22 +86,24 @@
 
         <section class="lucky-grid">
           <article class="card lucky-card">
+            <span class="lucky-icon" data-icon="palette"></span>
             <span>幸运色</span>
             <strong id="lucky-color"></strong>
           </article>
           <article class="card lucky-card">
+            <span class="lucky-icon" data-icon="compass"></span>
             <span>财位</span>
             <strong id="lucky-direction"></strong>
           </article>
         </section>
 
         <section class="card yj-card">
-          <h2 class="yi-title"><span>✓</span> 宜</h2>
+          <h2 class="yi-title"><span class="section-icon" data-icon="sparkle"></span> 宜</h2>
           <div id="yi-list" class="yj-list"></div>
         </section>
 
         <section class="card yj-card">
-          <h2 class="ji-title"><span>✕</span> 忌</h2>
+          <h2 class="ji-title"><span class="section-icon" data-icon="shield"></span> 忌</h2>
           <div id="ji-list" class="yj-list"></div>
         </section>
 
@@ -134,17 +139,17 @@
 
         <section class="card menu-list">
           <button class="menu-item" type="button" data-action="edit-profile">
-            <span class="menu-icon">👤</span>
+            <span class="menu-icon" data-icon="user"></span>
             <span>编辑个人信息</span>
             <span class="menu-arrow">›</span>
           </button>
           <button class="menu-item" type="button" data-action="show-about">
-            <span class="menu-icon">ℹ</span>
+            <span class="menu-icon" data-icon="info"></span>
             <span>关于我们</span>
             <span class="menu-arrow">›</span>
           </button>
           <button class="menu-item danger" type="button" data-action="logout">
-            <span class="menu-icon">↪</span>
+            <span class="menu-icon" data-icon="logout"></span>
             <span>退出当前账号</span>
             <span class="menu-arrow">›</span>
           </button>
@@ -156,15 +161,15 @@
 
     <nav id="tabbar" class="tabbar" hidden>
       <button type="button" data-route="home">
-        <span>⌂</span>
+        <span class="tab-icon" data-icon="home"></span>
         <small>今日</small>
       </button>
       <button type="button" data-route="calendar">
-        <span>□</span>
+        <span class="tab-icon" data-icon="calendar"></span>
         <small>月历</small>
       </button>
       <button type="button" data-route="profile">
-        <span>◎</span>
+        <span class="tab-icon" data-icon="profile"></span>
         <small>我的</small>
       </button>
     </nav>

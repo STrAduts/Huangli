@@ -148,10 +148,56 @@
     "己": "午", "庚": "申", "辛": "酉", "壬": "亥", "癸": "子"
   };
   var ELEMENT_ORDER = ["wood", "fire", "earth", "metal", "water"];
+  var ICON_PATHS = {
+    home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/>',
+    calendar: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01"/>',
+    profile: '<circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M5 21a7 7 0 0 1 14 0"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/>',
+    logout: '<path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M12 3h6a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3h-6"/>',
+    palette: '<circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10" r=".8"/><circle cx="12" cy="7.5" r=".8"/><circle cx="15.5" cy="10" r=".8"/><path d="M13.5 16.5c1.2 0 2-.7 2-1.7 0-.9-.7-1.5-1.6-1.5h-1.4c-1.2 0-2 .8-2 1.8 0 .8.7 1.4 1.5 1.4h1.5z"/>',
+    compass: '<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 5-4.8 2 2.2-5 4.8-2z"/>',
+    sparkle: '<path d="M12 3l1.5 5.2L19 10l-5.5 1.8L12 17l-1.5-5.2L5 10l5.5-1.8L12 3z"/><path d="M5 17l.8 2.2L8 20l-2.2.8L5 23l-.8-2.2L2 20l2.2-.8L5 17z"/>',
+    shield: '<path d="M12 3 20 6v6c0 5-3.4 8-8 9-4.6-1-8-4-8-9V6l8-3z"/><path d="m9 12 2 2 4-4"/>',
+    Users: '<path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.8"/><path d="M16.5 3.2a4 4 0 0 1 0 7.6"/>',
+    Handshake: '<path d="M8 12.5 11 15a2 2 0 0 0 2.6-.1l4.4-4.4"/><path d="M14 8.5l1.5-1.4a3 3 0 0 1 4.1.1L22 9.5l-5.5 5.5"/><path d="M2 9.5l2.4-2.3a3 3 0 0 1 4.1-.1L10 8.5"/><path d="m7 14 2 2M10 16.5l1.2 1.2M5 12.5l2 2"/>',
+    Dumbbell: '<path d="M6 7v10M18 7v10M3 9v6M21 9v6M6 12h12"/>',
+    Banknote: '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 10h.01M18 14h.01"/>',
+    MessageCircle: '<path d="M21 11.5a8.5 8.5 0 0 1-12.9 7.3L3 20l1.3-4.7A8.5 8.5 0 1 1 21 11.5z"/>',
+    TrendingDown: '<path d="m22 17-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/>',
+    Mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/>',
+    Sparkles: '<path d="M12 3l1.3 4.2L17.5 9l-4.2 1.3L12 14.5l-1.3-4.2L6.5 9l4.2-1.8L12 3z"/><path d="M18 14l.8 2.2L21 17l-2.2.8L18 20l-.8-2.2L15 17l2.2-.8L18 14z"/>',
+    Utensils: '<path d="M4 3v8M7 3v8M10 3v8M7 11v10"/><path d="M17 3c2 2 3 4.5 3 8h-4v10"/>',
+    Map: '<path d="M9 18 3 21V6l6-3 6 3 6-3v15l-6 3-6-3z"/><path d="M9 3v15M15 6v15"/>',
+    AlertTriangle: '<path d="M12 3 22 20H2L12 3z"/><path d="M12 9v5M12 17h.01"/>',
+    Keyboard: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h.01M11 9h.01M15 9h.01M19 9h.01M7 13h.01M11 13h.01M15 13h.01M8 17h8"/>',
+    EyeOff: '<path d="M3 3l18 18"/><path d="M10.6 10.6A2 2 0 0 0 13.4 13.4"/><path d="M9.9 4.4A10.7 10.7 0 0 1 12 4c5 0 9 5 9 8a11.9 11.9 0 0 1-3.2 4.4"/><path d="M6.1 6.1C4.2 7.4 3 9.3 3 12c0 3 4 8 9 8 1.8 0 3.5-.6 5-1.5"/>',
+    PiggyBank: '<path d="M19 10h2v4h-2"/><path d="M4 13a6 6 0 0 1 6-6h4a5 5 0 0 1 0 10H8l-2 3H4l1-4a6 6 0 0 1-1-3z"/><path d="M9 7 8 4h4l-1 3M16 11h.01"/>',
+    ShoppingBag: '<path d="M6 7h12l1 14H5L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/>',
+    Rocket: '<path d="M5 15c-1 1-2 4-2 6 2 0 5-1 6-2"/><path d="M15 5c3-2 5-2 6-2 0 1 0 3-2 6l-8 8-4-4 8-8z"/><path d="M14 6l4 4"/><circle cx="16" cy="8" r="1"/>',
+    CreditCard: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h3"/>',
+    AlertOctagon: '<path d="M8 2h8l6 6v8l-6 6H8l-6-6V8l6-6z"/><path d="M12 8v5M12 16h.01"/>',
+    Briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/>',
+    ListChecks: '<path d="m4 6 1.5 1.5L8 5"/><path d="M11 6h9"/><path d="m4 12 1.5 1.5L8 11"/><path d="M11 12h9"/><path d="m4 18 1.5 1.5L8 17"/><path d="M11 18h9"/>',
+    Clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    Watch: '<circle cx="12" cy="12" r="5"/><path d="M9 2h6l1 4H8l1-4zM8 18h8l-1 4H9l-1-4z"/>',
+    BatteryWarning: '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 11v2M11 9v3M11 15h.01"/>',
+    Activity: '<path d="M22 12h-4l-3 8-6-16-3 8H2"/>',
+    HeartPulse: '<path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 22l4.2-4.2"/><path d="M14 14h2l1-2 2 5 1-3h2"/>',
+    BookOpen: '<path d="M3 5a5 5 0 0 1 5-1h3v16H8a5 5 0 0 0-5 1V5z"/><path d="M21 5a5 5 0 0 0-5-1h-3v16h3a5 5 0 0 1 5 1V5z"/>',
+    UserPlus: '<path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M19 8v6M16 11h6"/>',
+    Box: '<path d="M21 8 12 3 3 8l9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/>',
+    Brain: '<path d="M9 3a3 3 0 0 0-3 3v1a4 4 0 0 0 0 8v1a3 3 0 0 0 4.5 2.6"/><path d="M15 3a3 3 0 0 1 3 3v1a4 4 0 0 1 0 8v1a3 3 0 0 1-4.5 2.6"/><path d="M9 8h1M14 8h1M9 13h2M13 13h2"/>',
+    XCircle: '<circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/>',
+    Heart: '<path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.6l-1-1a5.5 5.5 0 1 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>',
+    Shield: '<path d="M12 3 20 6v6c0 5-3.4 8-8 9-4.6-1-8-4-8-9V6l8-3z"/>',
+    Smile: '<circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/>'
+  };
 
   function init() {
     state.userInfo = loadUserInfo();
     bindTabbar();
+    renderStaticIcons(document);
     if (!window.Solar) {
       renderFatalError("农历库加载失败，请重新安装应用后再试。");
       return;
@@ -203,6 +249,7 @@
     var node = template("onboarding-template");
     var app = document.getElementById("app");
     app.replaceChildren(node);
+    renderStaticIcons(app);
 
     var form = document.getElementById("profile-form");
     var submit = document.getElementById("submit-profile");
@@ -267,7 +314,9 @@
 
   function renderHome() {
     var node = template("home-template");
-    document.getElementById("app").replaceChildren(node);
+    var app = document.getElementById("app");
+    app.replaceChildren(node);
+    renderStaticIcons(app);
 
     var fortune;
     try {
@@ -315,18 +364,34 @@
     items.forEach(function (item) {
       var row = document.createElement("article");
       row.className = "yj-item";
+      var icon = document.createElement("span");
+      icon.className = "yj-item-icon";
+      icon.innerHTML = svgIcon(item.icon);
       var traditional = document.createElement("strong");
       traditional.textContent = item.traditional;
       var modern = document.createElement("span");
       modern.textContent = item.modern;
-      row.append(traditional, modern);
+      row.append(icon, traditional, modern);
       list.appendChild(row);
     });
   }
 
+  function renderStaticIcons(root) {
+    root.querySelectorAll("[data-icon]").forEach(function (node) {
+      node.innerHTML = svgIcon(node.getAttribute("data-icon"));
+    });
+  }
+
+  function svgIcon(name) {
+    var path = ICON_PATHS[name] || ICON_PATHS.sparkle;
+    return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + path + "</svg>";
+  }
+
   function renderCalendar() {
     var node = template("calendar-template");
-    document.getElementById("app").replaceChildren(node);
+    var app = document.getElementById("app");
+    app.replaceChildren(node);
+    renderStaticIcons(app);
     setText("month-title", state.calendarYear + "年" + state.calendarMonth + "月");
 
     document.querySelector("[data-action='prev-month']").addEventListener("click", function () {
@@ -410,7 +475,9 @@
 
   function renderProfile() {
     var node = template("profile-template");
-    document.getElementById("app").replaceChildren(node);
+    var app = document.getElementById("app");
+    app.replaceChildren(node);
+    renderStaticIcons(app);
     var user = state.userInfo;
     var initial = user.name.trim().slice(0, 1) || "我";
     setText("avatar", initial);

@@ -4,7 +4,7 @@
 
 ## GitHub Actions 打包
 
-把仓库上传到 GitHub 后，进入 Actions 页面运行 **Build Android APK**，或向 `main` / `master` 推送改动。构建完成后在 artifact 中下载 `modern-huangli-debug-apk`，里面包含 `app-debug.apk`。
+把仓库上传到 GitHub 后，进入 Actions 页面运行 **Build Android APK**，或向 `main` / `master` 推送改动。构建完成后在 artifact 中下载 `huangli-android-app-version`，里面包含 `huangli-android-app.apk`。
 
 ## 本地构建
 
@@ -14,11 +14,7 @@
 gradle assembleDebug
 ```
 
-输出位置：
-
-```text
-app/build/outputs/apk/debug/app-debug.apk
-```
+Gradle 默认输出位置：`app/build/outputs/apk/debug/app-debug.apk`。GitHub Actions 会自动复制并重命名为：`release/huangli-android-app.apk`。
 
 ## 目录说明
 
