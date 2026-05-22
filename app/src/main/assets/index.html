@@ -37,12 +37,18 @@
 
           <label class="form-item">
             <span>出生日期</span>
-            <input id="birthDate" type="date">
+            <button id="birthDatePicker" class="picker-field" type="button">
+              <span id="birthDateText">请选择出生日期</span>
+            </button>
+            <input id="birthDate" type="hidden">
           </label>
 
           <label class="form-item">
             <span>出生时间</span>
-            <input id="birthTime" type="time" value="12:00">
+            <button id="birthTimePicker" class="picker-field" type="button">
+              <span id="birthTimeText">12:00</span>
+            </button>
+            <input id="birthTime" type="hidden" value="12:00">
           </label>
 
           <label class="form-item">
@@ -173,6 +179,17 @@
         <small>我的</small>
       </button>
     </nav>
+
+    <div id="wheel-modal" class="wheel-modal" hidden>
+      <div class="wheel-sheet" role="dialog" aria-modal="true">
+        <div class="wheel-header">
+          <button id="wheel-cancel" type="button">取消</button>
+          <strong id="wheel-title">选择</strong>
+          <button id="wheel-confirm" type="button">确定</button>
+        </div>
+        <div id="wheel-columns" class="wheel-columns"></div>
+      </div>
+    </div>
 
     <script src="./vendor/lunar.js"></script>
     <script src="./app.js"></script>

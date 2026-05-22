@@ -9,7 +9,8 @@
     selectedDate: today(),
     calendarYear: today().getFullYear(),
     calendarMonth: today().getMonth() + 1,
-    editingProfile: false
+    editingProfile: false,
+    isTurningPage: false
   };
 
   var COLORS = {
@@ -232,7 +233,7 @@
 
   function renderTabbar() {
     var tabbar = document.getElementById("tabbar");
-    tabbar.hidden = state.route === "onboarding";
+    tabbar.hidden = state.route === "onboarding" || !state.userInfo;
     tabbar.querySelectorAll("button").forEach(function (button) {
       button.classList.toggle("active", button.getAttribute("data-route") === state.route);
     });
@@ -249,6 +250,7 @@
     var node = template("onboarding-template");
     var app = document.getElementById("app");
     app.replaceChildren(node);
+    app.querySelector(".screen").classList.add("no-tabbar");
     renderStaticIcons(app);
 
     var form = document.getElementById("profile-form");
@@ -259,11 +261,17 @@
       birthTime: document.getElementById("birthTime"),
       city: document.getElementById("city")
     };
+    var birthDateText = document.getElementById("birthDateText");
+    var birthTimeText = document.getElementById("birthTimeText");
+    var birthDatePicker = document.getElementById("birthDatePicker");
+    var birthTimePicker = document.getElementById("birthTimePicker");
 
     fields.name.value = user.name;
     fields.birthDate.value = user.birthDate;
     fields.birthTime.value = user.birthTime || "12:00";
     fields.city.value = user.city;
+    birthDateText.textContent = user.birthDate || "请选择出生日期";
+    birthTimeText.textContent = user.birthTime || "12:00";
     submit.textContent = state.editingProfile ? "保存个人信息" : "点击查看运势";
 
     function syncGenderButtons() {
@@ -277,9 +285,38 @@
     }
 
     Object.keys(fields).forEach(function (key) {
+      if (key === "birthDate" || key === "birthTime") return;
       fields[key].addEventListener("input", function () {
         user[key] = fields[key].value;
         validate();
+      });
+    });
+
+    birthDatePicker.addEventListener("click", function () {
+      openWheelPicker({
+        title: "选择出生日期",
+        type: "date",
+        value: user.birthDate || "1995-01-01",
+        onConfirm: function (value) {
+          user.birthDate = value;
+          fields.birthDate.value = value;
+          birthDateText.textContent = value;
+          validate();
+        }
+      });
+    });
+
+    birthTimePicker.addEventListener("click", function () {
+      openWheelPicker({
+        title: "选择出生时间",
+        type: "time",
+        value: user.birthTime || "12:00",
+        onConfirm: function (value) {
+          user.birthTime = value;
+          fields.birthTime.value = value;
+          birthTimeText.textContent = value;
+          validate();
+        }
       });
     });
 
@@ -350,12 +387,22 @@
       navigate("home");
     });
     attachSwipe(document.querySelector(".swipe-surface"), function () {
-      state.selectedDate = addDays(state.selectedDate, 1);
-      navigate("home");
+      turnDay(1, "page-turn-left");
     }, function () {
-      state.selectedDate = addDays(state.selectedDate, -1);
-      navigate("home");
+      turnDay(-1, "page-turn-right");
     });
+  }
+
+  function turnDay(amount, className) {
+    if (state.isTurningPage) return;
+    state.isTurningPage = true;
+    var surface = document.querySelector(".swipe-surface");
+    if (surface) surface.classList.add(className);
+    setTimeout(function () {
+      state.selectedDate = addDays(state.selectedDate, amount);
+      state.isTurningPage = false;
+      navigate("home");
+    }, 170);
   }
 
   function renderEventList(id, items) {
@@ -783,23 +830,145 @@
 
   function attachSwipe(node, onLeft, onRight) {
     var startX = 0;
+    var startY = 0;
     var currentX = 0;
+    var currentY = 0;
     node.addEventListener("touchstart", function (event) {
       startX = event.touches[0].clientX;
+      startY = event.touches[0].clientY;
       currentX = startX;
+      currentY = startY;
     }, { passive: true });
     node.addEventListener("touchmove", function (event) {
       currentX = event.touches[0].clientX;
+      currentY = event.touches[0].clientY;
     }, { passive: true });
     node.addEventListener("touchend", function () {
-      var diff = startX - currentX;
-      if (Math.abs(diff) <= 56) return;
-      if (diff > 0) {
+      var diffX = startX - currentX;
+      var diffY = startY - currentY;
+      if (Math.abs(diffX) <= 92) return;
+      if (Math.abs(diffX) < Math.abs(diffY) * 1.45) return;
+      if (diffX > 0) {
         onLeft();
       } else {
         onRight();
       }
     });
+  }
+
+  function openWheelPicker(options) {
+    var modal = document.getElementById("wheel-modal");
+    var title = document.getElementById("wheel-title");
+    var columns = document.getElementById("wheel-columns");
+    var cancel = document.getElementById("wheel-cancel");
+    var confirm = document.getElementById("wheel-confirm");
+    var columnConfigs = options.type === "date" ? dateWheelConfig(options.value) : timeWheelConfig(options.value);
+    var selected = {};
+
+    title.textContent = options.title;
+    columns.replaceChildren();
+    columns.style.gridTemplateColumns = "repeat(" + columnConfigs.length + ", minmax(0, 1fr))";
+
+    columnConfigs.forEach(function (config) {
+      selected[config.key] = config.value;
+      var column = document.createElement("div");
+      column.className = "wheel-column";
+      column.setAttribute("data-key", config.key);
+      column.appendChild(wheelSpacer());
+      config.items.forEach(function (item) {
+        var option = document.createElement("div");
+        option.className = "wheel-option";
+        option.textContent = item.label;
+        option.setAttribute("data-value", item.value);
+        column.appendChild(option);
+      });
+      column.appendChild(wheelSpacer());
+      columns.appendChild(column);
+      var schedule = window.requestAnimationFrame || function (fn) { return setTimeout(fn, 0); };
+      schedule(function () {
+        column.scrollTop = Math.max(0, config.index * 42);
+      });
+      column.addEventListener("scroll", function () {
+        clearTimeout(column._wheelTimer);
+        column._wheelTimer = setTimeout(function () {
+          var index = Math.round(column.scrollTop / 42);
+          index = Math.max(0, Math.min(config.items.length - 1, index));
+          selected[config.key] = config.items[index].value;
+          if (column.scrollTo) {
+            column.scrollTo({ top: index * 42, behavior: "smooth" });
+          } else {
+            column.scrollTop = index * 42;
+          }
+        }, 80);
+      });
+    });
+
+    modal.hidden = false;
+    cancel.onclick = close;
+    confirm.onclick = function () {
+      options.onConfirm(options.type === "date" ? normalizeWheelDate(selected) : normalizeWheelTime(selected));
+      close();
+    };
+
+    function close() {
+      modal.hidden = true;
+    }
+  }
+
+  function wheelSpacer() {
+    var spacer = document.createElement("div");
+    spacer.className = "wheel-spacer";
+    return spacer;
+  }
+
+  function dateWheelConfig(value) {
+    var parts = (value || "1995-01-01").split("-").map(Number);
+    var currentYear = today().getFullYear();
+    return [
+      wheelConfig("year", range(currentYear - 100, currentYear).map(function (year) {
+        return { value: year, label: year + "年" };
+      }), parts[0] || 1995),
+      wheelConfig("month", range(1, 12).map(function (month) {
+        return { value: month, label: pad(month) + "月" };
+      }), parts[1] || 1),
+      wheelConfig("day", range(1, 31).map(function (day) {
+        return { value: day, label: pad(day) + "日" };
+      }), parts[2] || 1)
+    ];
+  }
+
+  function timeWheelConfig(value) {
+    var parts = (value || "12:00").split(":").map(Number);
+    return [
+      wheelConfig("hour", range(0, 23).map(function (hour) {
+        return { value: hour, label: pad(hour) + "时" };
+      }), parts[0] || 0),
+      wheelConfig("minute", range(0, 59).map(function (minute) {
+        return { value: minute, label: pad(minute) + "分" };
+      }), parts[1] || 0)
+    ];
+  }
+
+  function wheelConfig(key, items, value) {
+    var index = items.findIndex(function (item) { return item.value === value; });
+    return { key: key, items: items, value: value, index: index < 0 ? 0 : index };
+  }
+
+  function normalizeWheelDate(selected) {
+    var year = selected.year;
+    var month = selected.month;
+    var day = Math.min(selected.day, new Date(year, month, 0).getDate());
+    return year + "-" + pad(month) + "-" + pad(day);
+  }
+
+  function normalizeWheelTime(selected) {
+    return pad(selected.hour) + ":" + pad(selected.minute);
+  }
+
+  function range(start, end) {
+    var arr = [];
+    for (var value = start; value <= end; value += 1) arr.push(value);
+    return arr;
   }
 
   function showToast(message) {
