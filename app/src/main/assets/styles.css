@@ -95,23 +95,53 @@ button {
   position: relative;
   min-height: 100vh;
   min-height: 100dvh;
+  --splash-drag: 0px;
   padding: 0;
   overflow: hidden;
-  touch-action: pan-y;
+  touch-action: none;
   background: #f7bd7b;
 }
 
+.splash-screen::before,
+.splash-screen::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.splash-screen::before {
+  z-index: 0;
+  background: url("./images/splash-cover.png") center / cover no-repeat;
+  filter: blur(18px);
+  opacity: 0.78;
+  transform: scale(1.08);
+}
+
+.splash-screen::after {
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(255, 249, 238, 0.12), rgba(255, 249, 238, 0.08)),
+    radial-gradient(circle at 50% 100%, rgba(255, 246, 229, 0.36), transparent 44%);
+}
+
 .splash-cover {
+  position: relative;
+  z-index: 2;
   display: block;
   width: 100%;
   height: 100vh;
   height: 100dvh;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center center;
-  transform: scale(1.01);
+  transform: translateY(var(--splash-drag)) scale(1);
   transition: transform 360ms ease, opacity 260ms ease;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+.splash-screen.is-dragging .splash-cover {
+  transition: none;
 }
 
 .splash-hint {
@@ -119,8 +149,8 @@ button {
   right: 0;
   bottom: calc(42px + env(safe-area-inset-bottom));
   left: 0;
-  z-index: 2;
-  color: rgba(255, 255, 255, 0.78);
+  z-index: 3;
+  color: rgba(226, 226, 226, 0.88);
   font-size: 15px;
   font-weight: 650;
   text-align: center;
@@ -140,7 +170,7 @@ button {
 
 .splash-screen.is-leaving .splash-cover {
   opacity: 0.28;
-  transform: translateY(42px) scale(1.03);
+  transform: translateY(-72px) scale(0.985);
 }
 
 .splash-screen.is-leaving .splash-hint {
@@ -154,7 +184,7 @@ button {
     translate: 0 0;
   }
   50% {
-    translate: 0 -6px;
+    translate: 0 -7px;
   }
 }
 
@@ -390,118 +420,126 @@ button {
 .swipe-surface.page-tear-right::before {
   position: absolute;
   z-index: 8;
-  top: calc(env(safe-area-inset-top) + 14px);
-  width: 118%;
-  height: 118%;
-  border-radius: 0 0 18px 18px;
+  top: -28%;
+  width: 156%;
+  height: 156%;
+  border-radius: 22px;
   background:
-    linear-gradient(145deg, rgba(255, 253, 249, 0.98) 0%, rgba(255, 246, 235, 0.94) 58%, rgba(241, 216, 194, 0.86) 100%);
-  box-shadow: 0 24px 44px rgba(91, 57, 34, 0.18);
+    linear-gradient(132deg, rgba(255, 253, 249, 0.98) 0%, rgba(255, 246, 236, 0.96) 54%, rgba(238, 212, 188, 0.9) 100%);
+  box-shadow:
+    0 28px 56px rgba(91, 57, 34, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.74);
   content: "";
   pointer-events: none;
-  will-change: clip-path, transform, opacity;
+  will-change: transform, opacity;
 }
 
 .swipe-surface.page-tear-left::after,
 .swipe-surface.page-tear-right::after {
   position: absolute;
   z-index: 9;
-  top: calc(env(safe-area-inset-top) + 14px);
-  width: 46%;
-  height: 32%;
+  top: -34%;
+  width: 34px;
+  height: 172%;
+  border-radius: 999px;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(245, 224, 205, 0.92));
-  box-shadow: 0 18px 30px rgba(91, 57, 34, 0.18);
+    linear-gradient(90deg, rgba(91, 57, 34, 0), rgba(91, 57, 34, 0.22), rgba(255, 255, 255, 0.76), rgba(91, 57, 34, 0.06));
+  box-shadow: 0 18px 32px rgba(91, 57, 34, 0.16);
   content: "";
   pointer-events: none;
+  opacity: 0;
   will-change: transform, opacity;
 }
 
 .swipe-surface.page-tear-left::before {
-  right: -9%;
+  right: -62%;
   transform-origin: right top;
-  clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
-  animation: tear-sheet-left 360ms cubic-bezier(0.2, 0.72, 0.18, 1) both;
+  animation: diagonal-sheet-left 430ms cubic-bezier(0.2, 0.72, 0.18, 1) both;
 }
 
 .swipe-surface.page-tear-left::after {
-  right: 0;
-  transform-origin: right top;
-  clip-path: polygon(100% 0, 0 0, 100% 100%);
-  animation: tear-corner-left 360ms cubic-bezier(0.2, 0.72, 0.18, 1) both;
+  right: 30%;
+  transform-origin: center;
+  animation: diagonal-edge-left 430ms cubic-bezier(0.2, 0.72, 0.18, 1) both;
 }
 
 .swipe-surface.page-tear-right::before {
-  left: -9%;
+  left: -62%;
   transform-origin: left top;
-  clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
-  animation: tear-sheet-right 360ms cubic-bezier(0.2, 0.72, 0.18, 1) both;
+  animation: diagonal-sheet-right 430ms cubic-bezier(0.2, 0.72, 0.18, 1) both;
 }
 
 .swipe-surface.page-tear-right::after {
-  left: 0;
-  transform-origin: left top;
-  clip-path: polygon(0 0, 100% 0, 0 100%);
-  animation: tear-corner-right 360ms cubic-bezier(0.2, 0.72, 0.18, 1) both;
+  left: 30%;
+  transform-origin: center;
+  animation: diagonal-edge-right 430ms cubic-bezier(0.2, 0.72, 0.18, 1) both;
 }
 
-@keyframes tear-sheet-left {
+@keyframes diagonal-sheet-left {
   0% {
     opacity: 0;
-    clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
-    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform: translate3d(58%, -48%, 0) rotate(-18deg);
   }
-  24% {
-    opacity: 1;
+  18% {
+    opacity: 0.98;
   }
-  100% {
-    opacity: 0.9;
-    clip-path: polygon(100% 0, 18% 0, 0 100%, 100% 100%);
-    transform: translate3d(-16px, 14px, 0) rotate(-2.6deg);
-  }
-}
-
-@keyframes tear-corner-left {
-  0% {
-    opacity: 0;
-    transform: translate3d(42%, -30%, 0) rotate(12deg) scale(0.55);
-  }
-  26% {
-    opacity: 0.96;
+  74% {
+    opacity: 0.98;
   }
   100% {
-    opacity: 0;
-    transform: translate3d(-145%, 132%, 0) rotate(-18deg) scale(1.3);
+    opacity: 0.92;
+    transform: translate3d(-42%, 46%, 0) rotate(-18deg);
   }
 }
 
-@keyframes tear-sheet-right {
+@keyframes diagonal-edge-left {
   0% {
     opacity: 0;
-    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
-    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform: translate3d(82%, -18%, 0) rotate(35deg);
   }
-  24% {
-    opacity: 1;
+  18% {
+    opacity: 0.74;
+  }
+  72% {
+    opacity: 0.64;
   }
   100% {
-    opacity: 0.9;
-    clip-path: polygon(0 0, 82% 0, 100% 100%, 0 100%);
-    transform: translate3d(16px, 14px, 0) rotate(2.6deg);
+    opacity: 0;
+    transform: translate3d(-178%, 104%, 0) rotate(35deg);
   }
 }
 
-@keyframes tear-corner-right {
+@keyframes diagonal-sheet-right {
   0% {
     opacity: 0;
-    transform: translate3d(-42%, -30%, 0) rotate(-12deg) scale(0.55);
+    transform: translate3d(-58%, -48%, 0) rotate(18deg);
   }
-  26% {
-    opacity: 0.96;
+  18% {
+    opacity: 0.98;
+  }
+  74% {
+    opacity: 0.98;
+  }
+  100% {
+    opacity: 0.92;
+    transform: translate3d(42%, 46%, 0) rotate(18deg);
+  }
+}
+
+@keyframes diagonal-edge-right {
+  0% {
+    opacity: 0;
+    transform: translate3d(-82%, -18%, 0) rotate(-35deg);
+  }
+  18% {
+    opacity: 0.74;
+  }
+  72% {
+    opacity: 0.64;
   }
   100% {
     opacity: 0;
-    transform: translate3d(145%, 132%, 0) rotate(18deg) scale(1.3);
+    transform: translate3d(178%, 104%, 0) rotate(-35deg);
   }
 }
 
@@ -766,6 +804,7 @@ button {
 }
 
 .calendar-day {
+  position: relative;
   display: flex;
   min-height: 59px;
   flex-direction: column;
@@ -776,6 +815,32 @@ button {
   border-radius: 12px;
   background: transparent;
   color: var(--ink);
+}
+
+.calendar-luck-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px rgba(255, 253, 249, 0.78);
+}
+
+.calendar-luck-dot.luck-high {
+  background: var(--green);
+}
+
+.calendar-luck-dot.luck-good {
+  background: var(--gold);
+}
+
+.calendar-luck-dot.luck-neutral {
+  background: var(--faint);
+}
+
+.calendar-luck-dot.luck-low {
+  background: var(--rose);
 }
 
 .calendar-day strong {
@@ -809,6 +874,10 @@ button {
 
 .calendar-day.selected span {
   color: rgba(255, 255, 255, 0.82);
+}
+
+.calendar-day.selected .calendar-luck-dot {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.72);
 }
 
 .profile-card {

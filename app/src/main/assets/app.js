@@ -13,6 +13,7 @@
     isTurningPage: false,
     splashReady: false
   };
+  var calendarLuckCache = Object.create(null);
 
   var COLORS = {
     bg: "#FDFBF7",
@@ -247,7 +248,9 @@
     state.splashReady = false;
     app.replaceChildren(node);
     var screen = app.querySelector(".splash-screen");
+    var startX = 0;
     var startY = 0;
+    var currentX = 0;
     var currentY = 0;
     var unlockTimer = setTimeout(function () {
       state.splashReady = true;
@@ -255,21 +258,43 @@
     }, 1000);
 
     screen.addEventListener("touchstart", function (event) {
+      startX = event.touches[0].clientX;
       startY = event.touches[0].clientY;
+      currentX = startX;
       currentY = startY;
     }, { passive: true });
     screen.addEventListener("touchmove", function (event) {
+      currentX = event.touches[0].clientX;
       currentY = event.touches[0].clientY;
-    }, { passive: true });
-    screen.addEventListener("touchend", function () {
       if (!state.splashReady) return;
-      if (currentY - startY < 76) return;
+      var diffY = startY - currentY;
+      var diffX = Math.abs(startX - currentX);
+      if (diffY > 0 && diffY > diffX * 1.2) {
+        event.preventDefault();
+        screen.classList.add("is-dragging");
+        screen.style.setProperty("--splash-drag", "-" + Math.min(88, diffY * 0.42) + "px");
+      } else {
+        screen.classList.remove("is-dragging");
+        screen.style.setProperty("--splash-drag", "0px");
+      }
+    }, { passive: false });
+    screen.addEventListener("touchend", function () {
+      var diffY = startY - currentY;
+      var diffX = Math.abs(startX - currentX);
+      screen.classList.remove("is-dragging");
+      screen.style.setProperty("--splash-drag", "0px");
+      if (!state.splashReady) return;
+      if (diffY < 76 || diffY < diffX * 1.2) return;
       clearTimeout(unlockTimer);
       screen.classList.add("is-leaving");
       setTimeout(function () {
         navigate(state.userInfo ? "home" : "onboarding");
       }, 260);
     });
+    screen.addEventListener("touchcancel", function () {
+      screen.classList.remove("is-dragging");
+      screen.style.setProperty("--splash-drag", "0px");
+    }, { passive: true });
   }
 
   function renderOnboarding() {
@@ -374,6 +399,7 @@
         city: user.city.trim()
       };
       saveUserInfo(state.userInfo);
+      clearCalendarLuckCache();
       state.editingProfile = false;
       navigate("home");
     });
@@ -435,7 +461,7 @@
       state.selectedDate = addDays(state.selectedDate, amount);
       state.isTurningPage = false;
       navigate("home");
-    }, 360);
+    }, 430);
   }
 
   function renderEventList(id, items) {
@@ -503,6 +529,15 @@
       var lunar = document.createElement("span");
       lunar.textContent = item.lunarDay;
       button.append(day, lunar);
+      if (!item.isOtherMonth) {
+        var luckLevel = getCalendarLuckLevel(item.date);
+        if (luckLevel) {
+          var luckDot = document.createElement("i");
+          luckDot.className = "calendar-luck-dot " + luckLevel;
+          luckDot.setAttribute("aria-hidden", "true");
+          button.appendChild(luckDot);
+        }
+      }
       button.addEventListener("click", function () {
         state.selectedDate = parseDate(button.getAttribute("data-date"));
         navigate("home");
@@ -522,6 +557,34 @@
       state.calendarYear += 1;
     }
     navigate("calendar");
+  }
+
+  function getCalendarLuckLevel(date) {
+    if (!state.userInfo) return "";
+    var cacheKey = getCalendarLuckCacheKey(date, state.userInfo);
+    if (calendarLuckCache[cacheKey]) return calendarLuckCache[cacheKey];
+    try {
+      var level = calendarLuckLevel(calculateDailyFortune(date, state.userInfo).luckScore);
+      calendarLuckCache[cacheKey] = level;
+      return level;
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function getCalendarLuckCacheKey(date, userInfo) {
+    return formatDateStr(date) + "|" + JSON.stringify(userInfo);
+  }
+
+  function clearCalendarLuckCache() {
+    calendarLuckCache = Object.create(null);
+  }
+
+  function calendarLuckLevel(score) {
+    if (score >= 80) return "luck-high";
+    if (score >= 60) return "luck-good";
+    if (score >= 40) return "luck-neutral";
+    return "luck-low";
   }
 
   function generateCalendar(year, month) {
@@ -597,6 +660,7 @@
         if (!confirmed) return;
         localStorage.removeItem(STORAGE_USER);
         state.userInfo = null;
+        clearCalendarLuckCache();
         state.selectedDate = today();
         state.editingProfile = false;
         showToast("已退出账号");
