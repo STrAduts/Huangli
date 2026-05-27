@@ -560,10 +560,10 @@
   }
 
   function getCalendarLuckLevel(date) {
-    if (!state.userInfo) return "";
-    var cacheKey = getCalendarLuckCacheKey(date, state.userInfo);
-    if (calendarLuckCache[cacheKey]) return calendarLuckCache[cacheKey];
+    if (!state.userInfo || !(date instanceof Date)) return "";
     try {
+      var cacheKey = getCalendarLuckCacheKey(date, state.userInfo);
+      if (calendarLuckCache[cacheKey]) return calendarLuckCache[cacheKey];
       var level = calendarLuckLevel(calculateDailyFortune(date, state.userInfo).luckScore);
       calendarLuckCache[cacheKey] = level;
       return level;
@@ -616,6 +616,7 @@
   function pushCalendarDate(calendarData, date, day, isOtherMonth) {
     var lunar = window.Solar.fromDate(date).getLunar();
     calendarData.push({
+      date: date,
       dateStr: formatDateStr(date),
       day: day,
       lunarDay: lunar.getDayInChinese(),
